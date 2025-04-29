@@ -2,9 +2,9 @@
 
 **Challenge:** Build a web experience that turns Git diffs into live, dual-tone release notes.  
 **Time-box:** 24 hours from first commit / fork.
-Just hover over the preferred one and click generate notes!
----
 
+---
+Just hover over the preferred one and click generate notes!
 ## Overview
 
 This project fetches merged pull requests from a GitHub repository, displays them elegantly, and allows users to **generate live streaming release notes** for each PR.
