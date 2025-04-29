@@ -75,11 +75,12 @@ export default function Home() {
     }
   };
 
-  const handleNotes = async (item: DiffItem) => {
+  const handleNotes = async (item: DiffItem) => { // Generate notes for the selected diff
+    if (notesLoadingId === item.id) return; // Prevent re-triggering if already loading
     setNotesLoadingId(item.id);
     setNotesContent((prev) => ({ ...prev, [item.id]: "" }));
     try {
-      const res = await fetch("/api/generate-notes", {
+      const res = await fetch("/api/generate-notes", { // Generate notes/call
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -87,31 +88,31 @@ export default function Home() {
         body: JSON.stringify({ diff: item.diff }),
       });
 
-      if (!res.ok || !res.body) {
+      if (!res.ok || !res.body) { // Check for errors
         throw new Error(`HTTP error! status: ${res.status}`);
       }
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
-      let fullText = "";
+      let fullText = ""; 
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         const chunk = decoder.decode(value, { stream: true });
-        console.log("whole chunk:", chunk);
+        // console.log("whole chunk:", chunk); // Debugging line
         fullText += chunk;
         setNotesContent((prev) => ({
           ...prev,
           [item.id]: fullText,
         }));
       }
-      console.log("Final notes:", fullText);
+      // console.log("Final notes:", fullText); // Debugging line
     } catch (err) {
-      console.error("failed here:", err);
+      console.error("failed here:", err); // Debugging line
       setNotesContent((prev) => ({
         ...prev,
-        [item.id]: "Failed to generate notes.",
+        [item.id]: "Failed to generate notes.", 
       }));
     } finally {
       setNotesLoadingId(null);
@@ -174,15 +175,15 @@ export default function Home() {
                     </a>
                     <span>{item.description}</span>
                     <button
-                      onClick={() => handleNotes(item)}
+                      onClick={() => handleNotes(item)} // Generate notes for the diff
                       className="invisible group-hover:visible text-sm text-green-600 hover:text-green-800 underline transition"
                       disabled={notesLoadingId === item.id}
                     >
                       {notesLoadingId === item.id
                         ? "Generating..."
-                        : notesContent[item.id]
+                        : notesContent[item.id] // different states
                         ? "Re-generate Notes"
-                        : "Generate Notes"}
+                        : "Generate Notes"} 
                     </button>
                   </div>
                   {notesContent[item.id] && (
