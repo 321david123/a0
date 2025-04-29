@@ -34,10 +34,19 @@ ${diff}
     temperature: 0.2,
   });
 
-  return new Response(
-    textStream,
-    {
-      headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+  const reader = textStream.getReader();
+  const stream = new ReadableStream({
+    async pull(controller) {
+      const { done, value } = await reader.read();
+      if (done) {
+        controller.close();
+      } else {
+        controller.enqueue(new TextEncoder().encode(value));
+      }
     }
-  );
+  });
+
+  return new Response(stream, {
+    headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+  });
 }
