@@ -176,7 +176,9 @@ export default function Home() {
                     <span>{item.description}</span>
                     <button
                       onClick={() => handleNotes(item)} // Generate notes for the diff
-                      className="invisible group-hover:visible text-sm text-green-600 hover:text-green-800 underline transition"
+                      className={`text-sm text-green-600 hover:text-green-800 underline transition ${
+                        notesContent[item.id] ? "visible" : "invisible group-hover:visible"
+                      }`}
                       disabled={notesLoadingId === item.id}
                     >
                       {notesLoadingId === item.id
