@@ -2,7 +2,7 @@
 
 **Challenge:** Build a web experience that turns Git diffs into live, dual-tone release notes.  
 **Time-box:** 24 hours from first commit / fork.
-
+*Just hover over the preferred one and click generate notes!*
 ---
 
 ## Overview
