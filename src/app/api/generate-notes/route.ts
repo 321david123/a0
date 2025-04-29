@@ -34,5 +34,10 @@ ${diff}
     temperature: 0.2,
   });
 
-  return new Response(textStream);
+  return new Response(
+    textStream,
+    {
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+    }
+  );
 }
