@@ -116,17 +116,24 @@ export default function Home() {
           {diffs.length > 0 && (
             <ul className="space-y-3 list-disc list-inside">
               {diffs.map((item) => (
-                <li key={item.id} className="text-gray-800 dark:text-gray-200">
-                  <a
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 dark:text-blue-400 hover:underline"
+                <li key={item.id} className="group flex items-center text-gray-800 dark:text-gray-200 space-x-2">
+                  <div className="flex-1">
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 dark:text-blue-400 hover:underline"
+                    >
+                      PR #{item.id}:
+                    </a>
+                    <span className="ml-2">{item.description}</span>
+                  </div>
+                  <button
+                    
+                    className="invisible group-hover:visible text-sm text-green-460 hover:text-green-800 underline transition"
                   >
-                    PR #{item.id}:
-                  </a>
-                  <span className="ml-2">{item.description}</span>
-                  {/* We won't display the full diff here, just the description */}
+                    Generate Notes
+                  </button>
                 </li>
               ))}
             </ul>
