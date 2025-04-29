@@ -164,7 +164,7 @@ export default function Home() {
             <ul className="space-y-3 list-disc list-inside">
               {diffs.map((item) => (
                 <li key={item.id} className="group flex flex-col text-gray-800 dark:text-gray-200 space-y-2">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:space-x-2">
                     <a
                       href={item.url}
                       target="_blank"
@@ -175,19 +175,18 @@ export default function Home() {
                     </a>
                     <span>{item.description}</span>
                     <button
-                      onClick={() => handleNotes(item)} // Generate notes for the diff
-                      className={`text-sm text-green-600 hover:text-green-800 underline transition ${
-                        notesContent[item.id] ? "visible" : "invisible group-hover:visible"
-                      }`}
+                      onClick={() => handleNotes(item)}
+                      className="text-sm text-green-600 hover:text-green-800 underline transition sm:invisible group-hover:sm:visible"
                       disabled={notesLoadingId === item.id}
                     >
                       {notesLoadingId === item.id
                         ? "Generating..."
-                        : notesContent[item.id] // different states
+                        : notesContent[item.id]
                         ? "Re-generate Notes"
-                        : "Generate Notes"} 
+                        : "Generate Notes"}
                     </button>
                   </div>
+
                   {notesContent[item.id] && (
                     <article className="prose prose-sm dark:prose-invert max-w-none bg-gray-100 dark:bg-gray-700 p-4 rounded-lg overflow-auto">
                       <ReactMarkdown>{notesContent[item.id]}</ReactMarkdown>

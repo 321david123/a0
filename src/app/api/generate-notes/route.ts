@@ -32,7 +32,7 @@ ${diff}
         ],
         temperature: 0.2,
     });
-    console.log(textStream)
+    // console.log(textStream) debugging line
     const reader = textStream.getReader();
     const stream = new ReadableStream({
         async pull(controller) {
