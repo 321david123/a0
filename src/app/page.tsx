@@ -1,6 +1,7 @@
 "use client"; // Mark as a Client Component
 
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 // Define the expected structure of a diff object
 interface DiffItem {
@@ -25,6 +26,8 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [nextPage, setNextPage] = useState<number | null>(null);
   const [initialFetchDone, setInitialFetchDone] = useState<boolean>(false);
+  const [notesLoadingId, setNotesLoadingId] = useState<string | null>(null);
+  const [notesContent, setNotesContent] = useState<{ [key: string]: string }>({});
 
   const fetchDiffs = async (page: number) => {
     setIsLoading(true);
@@ -72,6 +75,49 @@ export default function Home() {
     }
   };
 
+  const handleNotes = async (item: DiffItem) => {
+    setNotesLoadingId(item.id);
+    setNotesContent((prev) => ({ ...prev, [item.id]: "" }));
+    try {
+      const res = await fetch("/api/generate-notes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ diff: item.diff }),
+      });
+
+      if (!res.ok || !res.body) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        console.log("whole chunk:", chunk);
+        fullText += chunk;
+        setNotesContent((prev) => ({
+          ...prev,
+          [item.id]: fullText,
+        }));
+      }
+      console.log("Final notes:", fullText);
+    } catch (err) {
+      console.error("failed here:", err);
+      setNotesContent((prev) => ({
+        ...prev,
+        [item.id]: "Failed to generate notes.",
+      }));
+    } finally {
+      setNotesLoadingId(null);
+    }
+  };
+
   return (
     <main className="flex min-h-screen flex-col items-center p-12 sm:p-24">
       <h1 className="text-4xl font-bold mb-12">Diff Digest ✍️</h1>
@@ -116,8 +162,8 @@ export default function Home() {
           {diffs.length > 0 && (
             <ul className="space-y-3 list-disc list-inside">
               {diffs.map((item) => (
-                <li key={item.id} className="group flex items-center text-gray-800 dark:text-gray-200 space-x-2">
-                  <div className="flex-1">
+                <li key={item.id} className="group flex flex-col text-gray-800 dark:text-gray-200 space-y-2">
+                  <div className="flex items-center space-x-2">
                     <a
                       href={item.url}
                       target="_blank"
@@ -126,14 +172,24 @@ export default function Home() {
                     >
                       PR #{item.id}:
                     </a>
-                    <span className="ml-2">{item.description}</span>
+                    <span>{item.description}</span>
+                    <button
+                      onClick={() => handleNotes(item)}
+                      className="invisible group-hover:visible text-sm text-green-600 hover:text-green-800 underline transition"
+                      disabled={notesLoadingId === item.id}
+                    >
+                      {notesLoadingId === item.id
+                        ? "Generating..."
+                        : notesContent[item.id]
+                        ? "Re-generate Notes"
+                        : "Generate Notes"}
+                    </button>
                   </div>
-                  <button
-                    
-                    className="invisible group-hover:visible text-sm text-green-460 hover:text-green-800 underline transition"
-                  >
-                    Generate Notes
-                  </button>
+                  {notesContent[item.id] && (
+                    <article className="prose prose-sm dark:prose-invert max-w-none bg-gray-100 dark:bg-gray-700 p-4 rounded-lg overflow-auto">
+                      <ReactMarkdown>{notesContent[item.id]}</ReactMarkdown>
+                    </article>
+                  )}
                 </li>
               ))}
             </ul>
